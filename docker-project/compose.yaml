@@ -1,0 +1,30 @@
+services:
+  next:
+    depends_on:
+      - db
+    build: 
+      context: ./next-app
+      dockerfile: Dockerfile
+    ports:
+      - 3006:3000
+    develop:
+      watch:
+        - path: ./next-app/package.json
+          action: rebuild
+        - path: ./next-app/package-lock.json
+          action: rebuild
+        - path: ./next-app/next.config.js
+          action: rebuild
+        - path: ./next-app
+          target: /app
+          action: sync
+    environment:
+      - DB_URL=postgres://pg:secret@db:5432/mydb
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=mydb
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=secret
